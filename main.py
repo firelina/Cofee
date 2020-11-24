@@ -41,6 +41,7 @@ class MyWidget(QMainWindow):
         self.lineEdit_price.setText(str(self.coffee.price))
         self.lineEdit_volume.setText(str(self.coffee.vol))
         self.btn_ok.clicked.connect(self.get_obj)
+        self.btn_cancel.clicked.connect(self.close)
 
     def add_row(self):
         uic.loadUi('addEditCoffeeForm.ui', self)
