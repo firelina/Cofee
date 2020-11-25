@@ -4,15 +4,18 @@ from PyQt5 import uic
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
 
+from Ui.add import UiAddEditForm
+from Ui.main_inter import Ui_MainWindow
 
-class MyWidget(QMainWindow):
+
+class MyWidget(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
+        self.form = EditForm()
         self.init()
 
     def init(self):
-        uic.loadUi('main.ui', self)
-        self.flag = None
+        self.setupUi(self)
         self.dao = Dao()
         self.tableWidget.itemClicked.connect(self.click)
         self.btn_change.clicked.connect(self.change_row)
@@ -32,40 +35,54 @@ class MyWidget(QMainWindow):
         self.btn_change.setEnabled(True)
 
     def change_row(self):
-        uic.loadUi('addEditCoffeeForm.ui', self)
-        self.flag = True
-        self.lineEdit_title.setText(self.coffee.title)
-        self.lineEdit_roast.setText(self.coffee.roast)
-        self.lineEdit_type.setText(self.coffee.type)
-        self.lineEdit_descrip.setText(self.coffee.disc)
-        self.lineEdit_price.setText(str(self.coffee.price))
-        self.lineEdit_volume.setText(str(self.coffee.vol))
-        self.btn_ok.clicked.connect(self.get_obj)
-        self.btn_cancel.clicked.connect(self.close)
+        self.form.show()
+        self.form.lineEdit_title.setText(self.coffee.title)
+        self.form.lineEdit_roast.setText(self.coffee.roast)
+        self.form.lineEdit_type.setText(self.coffee.type)
+        self.form.lineEdit_descrip.setText(self.coffee.disc)
+        self.form.lineEdit_price.setText(str(self.coffee.price))
+        self.form.lineEdit_volume.setText(str(self.coffee.vol))
+        self.form.btn_ok.clicked.connect(self.change_obj)
+        self.form.btn_cancel.clicked.connect(self.close)
 
     def add_row(self):
-        uic.loadUi('addEditCoffeeForm.ui', self)
-        self.flag = False
-        self.btn_ok.clicked.connect(self.get_obj)
-        self.btn_cancel.clicked.connect(self.close)
+        self.form.show()
+        self.form.lineEdit_title.setText('')
+        self.form.lineEdit_roast.setText('')
+        self.form.lineEdit_type.setText('')
+        self.form.lineEdit_descrip.setText('')
+        self.form.lineEdit_price.setText('')
+        self.form.lineEdit_volume.setText('')
+        self.form.btn_ok.clicked.connect(self.add_obj)
+        self.form.btn_cancel.clicked.connect(self.close)
 
     def close(self):
+        self.form.close()
         self.init()
 
-    def get_obj(self):
+    def add_obj(self):
+        id = None
+        title = self.form.lineEdit_title.text()
+        roast = self.form.lineEdit_roast.text()
+        type = self.form.lineEdit_type.text()
+        disc = self.form.lineEdit_descrip.text()
+        price = self.form.lineEdit_price.text()
+        vol = self.form.lineEdit_volume.text()
+        coffee = Coffee(id, title, roast, type, disc, price, vol)
+        self.dao.insert_row(coffee)
+        self.close()
+
+    def change_obj(self):
         id = self.coffee.id
-        title = self.lineEdit_title.text()
-        roast = self.lineEdit_roast.text()
-        type = self.lineEdit_type.text()
-        disc = self.lineEdit_descrip.text()
-        price = self.lineEdit_price.text()
-        vol = self.lineEdit_volume.text()
-        self.coffee = Coffee(id, title, roast, type, disc, price, vol)
-        if self.flag:
-            self.dao.update_row(self.coffee)
-        elif not self.flag:
-            self.dao.insert_row(self.coffee)
-        self.init()
+        title = self.form.lineEdit_title.text()
+        roast = self.form.lineEdit_roast.text()
+        type = self.form.lineEdit_type.text()
+        disc = self.form.lineEdit_descrip.text()
+        price = self.form.lineEdit_price.text()
+        vol = self.form.lineEdit_volume.text()
+        coffee = Coffee(id, title, roast, type, disc, price, vol)
+        self.dao.update_row(coffee)
+        self.close()
 
     def fill(self):
         res = self.dao.get_all()
@@ -89,7 +106,7 @@ class MyWidget(QMainWindow):
 
 class Dao:
     def __init__(self):
-        self.conn = sqlite3.connect("coffee.db")
+        self.conn = sqlite3.connect("Data\coffee.db")
 
     def get_all(self):
         cur = self.conn.cursor()
@@ -108,6 +125,13 @@ class Dao:
         where id = ?""",
                        (obj.title, obj.roast, obj.type, obj.disc, obj.price, obj.vol, obj.id))
         self.conn.commit()
+
+
+class EditForm(QMainWindow, UiAddEditForm):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.setWindowTitle('Form')
 
 
 class Coffee:
