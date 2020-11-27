@@ -54,7 +54,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.form.btn_cancel.clicked.connect(self.close)
 
     def close(self):
-        print(self.form.sender())
+        # print(self.form.sender())
         self.form.close()
         self.form = EditForm()
         self.fill()
