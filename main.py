@@ -12,9 +12,6 @@ class MyWidget(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.form = EditForm()
-        self.init()
-
-    def init(self):
         self.setupUi(self)
         self.dao = Dao()
         self.tableWidget.itemClicked.connect(self.click)
@@ -57,8 +54,10 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.form.btn_cancel.clicked.connect(self.close)
 
     def close(self):
+        print(self.form.sender())
         self.form.close()
-        self.init()
+        self.form = EditForm()
+        self.fill()
 
     def add_obj(self):
         id = None
